@@ -22,13 +22,14 @@ public class TSP_GA
 	{
 		// CUSTOM VARIABLES:
 		boolean random = false; //generate random cities
-		int ATTEMPTS = 100; // how many times we run the GA
+		int ATTEMPTS = 1000; // how many times we run the GA
 		int GENS = 50; // for how many generations we evolve each iteration
+		int POPSIZE = 50; // how many tours in each generation
 		
 		
 		if (random)
 		{
-			for (int i = 0; i < 50; i++)
+			for (int i = 0; i < POPSIZE; i++)
 			{
 				TourManager.addCity(new City());
 			}
@@ -89,8 +90,8 @@ public class TSP_GA
 				System.out.println("Attempt number "+(i+1)+" of "+ATTEMPTS);
 			}
 			
-			Population pop = new Population(50, true);
-			// Evolve population for 100 generations
+			Population pop = new Population(POPSIZE, true);
+			// Evolve population for 'GENS' generations
 			pop = GA.evolvePopulation(pop);
 			for (int j = 0; j < GENS; j++)
 			{
