@@ -2,7 +2,6 @@ package RoomPicker;
 
 public class GeneticAlgorithm
 {
-
 	private static final double mutationRate = 0.015;
 	private static final int tournamentSize = 5;
 	private static final boolean elitism = true;
@@ -29,79 +28,61 @@ public class GeneticAlgorithm
 
 		for (int i = elitismOffset; i < newPopulation.size(); i++)
 		{
-			// Select parents
-			House parent1 = tournamentSelection(pop);
-			House parent2 = tournamentSelection(pop);
+			// Select parent
+			House parent = tournamentSelection(pop);
 
-			// prevent asexual reproduction
-			while (parent1.equals(parent2))
-			{
-				parent2 = tournamentSelection(pop);
-			}
-
-			// Crossover parents
-			House child = crossover(parent1, parent2);
+			// Mutate parent
+			House child = mutate(parent);
 			// Add child to new population
 			newPopulation.saveHouse(i, child);
 		}
 
-		// Mutate the new population a bit to add some new genetic material
+		// Regenerate any shit Houses
 		for (int i = elitismOffset; i < newPopulation.size(); i++)
 		{
-			mutate(newPopulation.getHouse(i), false);
+			newPopulation.saveHouse(i, regen(newPopulation.getHouse(i)));
 		}
 
 		return newPopulation;
 	}
 
 	/**
-	 * Somehow breed two houses together to create a 'legal' child
-	 * 
-	 * @param parent1
-	 * @param parent2
-	 * @return
-	 */
-	public static House crossover(House parent1, House parent2)
-	{
-		//House child = new House(filename);
-
-		// TODO VERY TEMPORARY BREEDING PROGRAM JUST RETURNS ONE OF THE PARENTS
-		// This currently causes the whole thing to fill because one parent fills the whole array and then the anti asexual loop gets stuck
-		return parent1;
-	}
-
-	/**
-	 * Spice things up by swapping two random tenants' rooms
+	 * Crappy asexual reproduction
 	 * 
 	 * @param house
+	 * @return
 	 */
-	public static void mutate(House house, boolean force)
+	public static House mutate(House house)
 	{
-		// Apply mutation rate
-		if (Math.random() < mutationRate || force)
+		if (Math.random() < mutationRate)
 		{
 			// pick two random tenants
+			// TODO pos1 should be the least happy tenant
 			int pos1 = (int) (house.getTenants().length * Math.random());
 			int pos2 = (int) (house.getTenants().length * Math.random());
-
 			// ensure a swap actually happens
 			while (pos2 == pos1)
 			{
 				pos2 = (int) ((house.getTenants().length) * Math.random());
 			}
-
-			// debugging printing
-			if (force)
-				System.out.println("Swapping tenants: " + pos1 + " and " + pos2);
-
 			// Store the rooms of the two tenants
 			int room1 = house.getTenants()[pos1].getRoom();
 			int room2 = house.getTenants()[pos2].getRoom();
-
 			// Swap them around
 			house.getTenants()[pos1].setRoom(room2);
 			house.getTenants()[pos2].setRoom(room1);
 		}
+		return house;
+	}
+	
+	private static House regen(House house)
+	{
+		if (house.fitness() < (Math.pow(house.getTenants().length, 2)) / 2.0)
+		{
+			house.assignRooms();
+		}
+		
+		return house;
 	}
 
 	private static House tournamentSelection(Pop pop)
